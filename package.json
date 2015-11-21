@@ -1,0 +1,14 @@
+{
+    "name": "aga.mn",
+    "version": "0.0.1",
+    "email": "monkin.andrey@gmail.com",
+    "dependencies": {
+        "gulp": ">=3.8.11",
+        "gulp-concat": ">=2.5.2",
+        "gulp-webserver": ">=0.9.0",
+        "gulp-tsc": ">=0.10.0",
+        "typescript": ">=1.5.0-beta",
+        "gulp-files-to-json": ">=0.1.1",
+        "gulp-header": ">=1.2.2"
+    }
+}
