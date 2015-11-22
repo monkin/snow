@@ -87,5 +87,5 @@ void main() {
     float factor = 1.0 / (1.4 + spinned_point.z * 0.7);
     vec4 factor_point = spinned_point * vec4(factor, factor, 1, 1);
     
-    gl_Position = vec4(factor_point.x, factor_point.y, clamp(factor_point.z, -1.0, -1.0), 1);
+    gl_Position = vec4(factor_point.x, factor_point.y, clamp(factor_point.z, -1.0, 1.0), 1);
 }
