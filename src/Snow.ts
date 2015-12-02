@@ -21,8 +21,12 @@ namespace snow {
 		private uniforms: Uniforms;
 		private indexes: Buffer;
 		private triangles: number = 0;
+		private bgProgram: Program;
+		private bgAttributes: Attributes;
 		
 		public constructor(private gl: GL, private count: number) {
+			// Stars
+			
 			this.program = gl.program(Shaders["snow.v"], Shaders["snow.f"]);
 			var attributes = this.program.attributes(),
 				points: number[] = [], // vertexes
@@ -39,22 +43,22 @@ namespace snow {
 					
 				star.push(i);
 				points.push(0, 0);
-				orientation.push(0, 0, 1);
+				orientation.push(0);
 				
 				for (let ray = 0; ray < rays; ray++) {
 					star.push(i);
 					points.push(Math.sin(2 * Math.PI * ray / rays), Math.cos(2 * Math.PI * ray / rays));
-					orientation.push(ray % 2, (ray + 1) % 2, 0);
+					orientation.push((ray % 2) + 1);
 					indexes.push(offset, offset + ray + 1, offset + 1 + ((ray + 1) % rays));
 					this.triangles++;
 				}
 				
 				offset += rays + 1;
 			}
-			attributes.append("a_point", points);
-			attributes.append("a_orientation", orientation);
-			attributes.append("a_star", star);
-			attributes.apply();
+			attributes.append("a_point", points)
+				.append("a_orientation", orientation)
+				.append("a_star", star)
+				.build().apply();
 			
 			this.indexes = gl.buffer()
 					.targetElements()
@@ -62,6 +66,14 @@ namespace snow {
 					.staticDraw()
 					.data(indexes)
 					.build();
+			
+			// Background
+			
+			this.bgProgram = gl.program(Shaders["background.v"], Shaders["background.f"]);
+			this.bgAttributes = this.bgProgram.attributes().append("a_point", [
+				-1, -1, 1, -1, -1, 1,
+				1, -1, 1, 1, -1, 1
+			]).build().apply();
 		}
 		
 		public setTime(time: number) {
@@ -75,17 +87,26 @@ namespace snow {
 		}
 		
 		public draw() {
+			
 			this.gl.settings()
-					.clearColor([0.4, 0.4, 0.9, 1.0])
-					.clearDepth(0)
-					//.enableDepthTest()
+					.disableBlend()
+					.disableDepthTest()
+					.program(this.bgProgram)
+					.attributes(this.bgAttributes)
+					.use(() => {
+				this.bgAttributes.apply();
+				this.gl.drawTrianglesArrays(6);
+			});
+			
+			this.gl.settings()
 					.disableDepthTest()
 					.enableBlend()
 					.blendEquation(BlendEquation.ADD)
 					.blendFunction(BlendFunction.SRC_ALPHA, BlendFunction.ONE_MINUS_SRC_ALPHA, BlendFunction.ONE, BlendFunction.ONE)
 					.elementArrayBuffer(this.indexes)
-					.program(this.program).use(() => {
-				this.gl.clearBuffers();
+					.program(this.program)
+					.attributes(this.attributes).use(() => {
+				this.attributes.apply();
 				this.gl.drawTrianglesElemets(this.triangles * 3);
 			});
 		}
@@ -102,6 +123,14 @@ namespace snow {
 			if (this.indexes) {
 				this.indexes.dispose();
 				this.indexes = null;
+			}
+			if (this.bgAttributes) {
+				this.bgAttributes.dispose();
+				this.bgAttributes = null;
+			}
+			if (this.bgProgram) {
+				this.bgProgram.dispose();
+				this.bgProgram = null;
 			}
 		}
 	}

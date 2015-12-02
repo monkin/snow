@@ -44,7 +44,7 @@ uniform float u_ratio;
 uniform float u_time;
 
 attribute vec2 a_point;
-attribute vec3 a_orientation;
+attribute float a_orientation;
 attribute float a_star;
 
 varying vec2 v_orientation;
@@ -53,9 +53,9 @@ varying float v_star;
 void main() {
     
     // v_orientation
-    if (a_orientation.z != 0.0) {
+    if (a_orientation == 0.0) {
         v_orientation = vec2(0, 0);
-    } else if (a_orientation.x != 0.0) {
+    } else if (a_orientation == 1.0) {
         v_orientation = vec2(0, 1);
     } else {
         float angle = 2.0 * M_PI / 10.0;

@@ -326,6 +326,17 @@ module may.webgl {
             this.v.arrayBuffer = buffer.handle;
             return this;
         }
+        /**
+         * Bind attributes array buffer
+         */
+        public attributes(attributes: Attributes) {
+            if (!attributes.buffer) {
+                throw new Error("Attributes shuld be builded before attaching it to settings");
+            } else {
+                this.v.arrayBuffer = attributes.buffer.handle;
+                return this;
+            }
+        }
         public elementArrayBuffer(buffer: Buffer) {
             this.v.elementArrayBuffer = buffer.handle;
             return this;
@@ -736,11 +747,14 @@ module may.webgl {
         }
     }
     
+    /**
+     * This class helps pass multiple attributes in one buffer
+     */
     export class Attributes implements Disposable {
         private stride: number = 0;
         private length: number = -1;
         private data: Set<{ offset: number, size: number, data: number[]|Float32Array }> = {};
-        private buffer: Buffer = null;
+        public buffer: Buffer = null;
         public gl: GL;
         public constructor(public program: Program) {
             let gl = program.gl.handle,
@@ -774,6 +788,9 @@ module may.webgl {
                 this.stride += s;
             }
         }
+        /**
+         * Set attribute values
+         */
         public append(name: string, data: number[]|Float32Array) {
             if (this.buffer) {
                 throw new Error(`Can't modify attributes cause 'apply' was called`);
@@ -791,50 +808,62 @@ module may.webgl {
             this.data[name].data = data;
             return this;
         }
-        public apply() {
+        /**
+         * Build attributes data buffer
+         */
+        public build() {
             var data = this.data,
-                gl = this.gl.handle;
-            
-            if (!this.buffer) {
-                let l = this.length,
-                    s = this.stride;
-                for (let name in data) {
-                    if (!data[name].data) {
-                        throw new Error(`Attribute '${name}' not defined`);
-                    }
+                gl = this.gl.handle,
+                l = this.length,
+                s = this.stride;
+            for (let name in data) {
+                if (!data[name].data) {
+                    throw new Error(`Attribute '${name}' not defined`);
                 }
-                
-                let content = new Float32Array(l * s);
-                for (let i = 0; i < l; i++) {
-                    var o = i * s;
-                    for (let name in data) {
-                        let item = data[name],
-                            is = item.size,
-                            io = o + item.offset,
-                            id = item.data;
-                        for (let j = 0; j < is; j++) {
-                            content[io + j] = id[i * is + j];
-                        }
-                    }
-                }
-                
-                this.buffer = this.program.gl.buffer()
-                        .targetArray()
-                        .typeFloat()
-                        .streamDraw()
-                        .data(content)
-                        .build();
             }
             
-            let ph = this.program.handle;
-            this.program.use(() => this.buffer.use(() => {
+            let content = new Float32Array(l * s);
+            for (let i = 0; i < l; i++) {
+                var o = i * s;
                 for (let name in data) {
-                    let location = gl.getAttribLocation(ph, name),
-                        item = data[name];
-                    gl.enableVertexAttribArray(location);
-                    gl.vertexAttribPointer(location, item.size, gl.FLOAT, false, this.stride * 4, item.offset * 4);
+                    let item = data[name],
+                        is = item.size,
+                        io = o + item.offset,
+                        id = item.data;
+                    for (let j = 0; j < is; j++) {
+                        content[io + j] = id[i * is + j];
+                    }
                 }
-            }));
+            }
+            
+            this.buffer = this.program.gl.buffer()
+                    .targetArray()
+                    .typeFloat()
+                    .streamDraw()
+                    .data(content)
+                    .build();
+            return this;
+        }
+        /**
+         * Set program attributes
+         */
+        public apply() {
+            if (!this.buffer) {
+                throw new Error("Attributes should are builded first");
+            } else {
+                var data = this.data,
+                    gl = this.gl.handle,
+                    ph = this.program.handle;
+                this.program.use(() => this.buffer.use(() => {
+                    for (let name in data) {
+                        let location = gl.getAttribLocation(ph, name),
+                            item = data[name];
+                        gl.enableVertexAttribArray(location);
+                        gl.vertexAttribPointer(location, item.size, gl.FLOAT, false, this.stride * 4, item.offset * 4);
+                    }
+                }));
+                return this;
+            }
         }
         public dispose() {
             if (this.buffer) {
