@@ -140,16 +140,23 @@ namespace snow {
 			snow = new Snow(gl, 500),
 			requestAnimationFrame = window.requestAnimationFrame || window["mozRequestAnimationFrame"] ||
                               window["webkitRequestAnimationFrame"] || window.msRequestAnimationFrame || setTimeout,
-			startTime = new Date(),
-			displayWidth  = canvas.clientWidth,
-			displayHeight = canvas.clientHeight;
+			startTime = new Date();
 		
-		if (canvas.width  != displayWidth ||
-				canvas.height != displayHeight) {
-			canvas.width  = displayWidth;
-			canvas.height = displayHeight;
-			gl.handle.viewport(0, 0, canvas.width, canvas.height);
+		function resize() {
+			var displayWidth  = window.innerWidth,
+				displayHeight = window.innerHeight;
+			
+			if (canvas.width  != displayWidth ||
+					canvas.height != displayHeight) {
+				canvas.width  = displayWidth;
+				canvas.height = displayHeight;
+				gl.handle.viewport(0, 0, canvas.width, canvas.height);
+			}
 		}
+		
+		window.onresize = resize;
+		
+		resize();
 		
 		function draw() {
 			snow.setRatio(canvas.width / canvas.height)
