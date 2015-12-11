@@ -69,7 +69,7 @@ void main() {
     float rotation_speed = rand(a_star, MIN_RPS, MAX_RPS);
     vec3 rotation_axis = rand_axis(a_star + 0.1);
     mat4 rotation_matrix = create_rotation_matrix(rotation_axis, rotation_speed * u_time * 0.001);
-    vec4 rotated_point = vec4(a_point / 10.0, 0, 1) * rotation_matrix / vec4(u_ratio, 1, 1, 1);
+    vec4 rotated_point = vec4(a_point / 12.0, 0, 1) * rotation_matrix / vec4(u_ratio, 1, 1, 1);
     
     float spin_radius = rand(a_star + 0.5, MIN_SPIN_RADIUS, MAX_SPIN_RADIUS);
     float fall_speed = FALL_SPEED - spin_radius;

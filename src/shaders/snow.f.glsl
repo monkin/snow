@@ -2,7 +2,7 @@ precision highp float;
 
 #define M_PI 3.1415926535897932384626433832795
 #define MIN_RIPPLE 0.0
-#define MAX_RIPPLE (4.0 * M_PI)
+#define MAX_RIPPLE (2.0 * M_PI)
 
 uniform float u_ratio;
 uniform float u_time;
@@ -36,7 +36,13 @@ float distance_to_line(vec4 line, vec2 testPt) {
 vec4 random_line(float seed) {
     float angle = M_PI * rand(seed);
     float x1 = rand(seed + 1.05);
-    return vec4(x1, 0, x1 + cos(angle), sin(angle));
+    float y1 = rand(seed + 1.1);
+    return vec4(x1, y1, x1 + cos(angle), y1 + sin(angle));
+}
+
+
+vec4 normal_line(vec4 line) {
+    return vec4(line.x, line.y, line.x + (line.w - line.y), line.y - (line.z - line.x));
 }
 
 void main() {
@@ -47,9 +53,12 @@ void main() {
     float twirl_angle = rand(v_star + 0.3, MIN_RIPPLE, MAX_RIPPLE) * distance(v_orientation, twirl_center);
     vec2 twirl_point = (v_orientation - twirl_center) * create_rotation_matrix(twirl_angle) + twirl_center;
     
-    for (float i = 0.0; i < 5.0; i += 1.0) {
-        r = min(r, distance_to_line(random_line(v_star + 2.137 * i), twirl_point));
+    for (float i = 0.0; i < 3.0; i += 1.0) {
+        vec4 line1 = random_line(v_star + 2.137 * i);
+        vec4 line2 = normal_line(line1);
+        r = min(r, distance_to_line(line1, twirl_point));
+        r = min(r, distance_to_line(line2, twirl_point));
     }
     float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.5 + 0.5 * (1.0 - gl_FragCoord.z));
-    gl_FragColor = vec4(1, 1, 1, alpha);
+    gl_FragColor = vec4(1, 1, 1, alpha * alpha);
 }
