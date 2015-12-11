@@ -2,7 +2,7 @@ precision highp float;
 
 #define M_PI 3.1415926535897932384626433832795
 #define MIN_RIPPLE 0.0
-#define MAX_RIPPLE (2.0 * M_PI)
+#define MAX_RIPPLE (3.0 * M_PI)
 
 uniform float u_ratio;
 uniform float u_time;
@@ -49,11 +49,11 @@ void main() {
     float x = u_ratio * u_time;
     float r = 100.0;
     
-    vec2 twirl_center = vec2(rand(v_star + 0.1), rand(v_star + 0.2));
-    float twirl_angle = rand(v_star + 0.3, MIN_RIPPLE, MAX_RIPPLE) * distance(v_orientation, twirl_center);
-    vec2 twirl_point = (v_orientation - twirl_center) * create_rotation_matrix(twirl_angle) + twirl_center;
-    
     for (float i = 0.0; i < 3.0; i += 1.0) {
+        vec2 twirl_center = vec2(rand(v_star + 0.1 * i), rand(v_star + 0.2 * i));
+        float twirl_angle = rand(v_star + 0.3 * i, MIN_RIPPLE, MAX_RIPPLE) * distance(v_orientation, twirl_center);
+        vec2 twirl_point = (v_orientation - twirl_center) * create_rotation_matrix(twirl_angle) + twirl_center;
+    
         vec4 line1 = random_line(v_star + 2.137 * i);
         vec4 line2 = normal_line(line1);
         r = min(r, distance_to_line(line1, twirl_point));
