@@ -137,7 +137,7 @@ namespace snow {
 	
 	export function start(canvas: HTMLCanvasElement) {
 		var gl = new GL(canvas),
-			snow = new Snow(gl, 750),
+			snow = new Snow(gl, 600),
 			requestAnimationFrame = window.requestAnimationFrame || window["mozRequestAnimationFrame"] ||
                               window["webkitRequestAnimationFrame"] || window.msRequestAnimationFrame || setTimeout,
 			startTime = new Date();

@@ -49,16 +49,20 @@ void main() {
     float x = u_ratio * u_time;
     float r = 100.0;
     
-    for (float i = 0.0; i < 3.0; i += 1.0) {
-        vec2 twirl_center = vec2(rand(v_star + 0.1 * i), rand(v_star + 0.2 * i));
-        float twirl_angle = rand(v_star + 0.3 * i, MIN_RIPPLE, MAX_RIPPLE) * distance(v_orientation, twirl_center);
-        vec2 twirl_point = (v_orientation - twirl_center) * create_rotation_matrix(twirl_angle) + twirl_center;
-    
-        vec4 line1 = random_line(v_star + 2.137 * i);
-        vec4 line2 = normal_line(line1);
-        r = min(r, distance_to_line(line1, twirl_point));
-        r = min(r, distance_to_line(line2, twirl_point));
+    if (length(v_orientation) < 0.9) {
+        for (float i = 0.0; i < 3.0; i += 1.0) {
+            vec2 twirl_center = vec2(rand(v_star + 0.1 * i), rand(v_star + 0.2 * i));
+            float twirl_angle = rand(v_star + 0.3 * i, MIN_RIPPLE, MAX_RIPPLE) * distance(v_orientation, twirl_center);
+            vec2 twirl_point = (v_orientation - twirl_center) * create_rotation_matrix(twirl_angle) + twirl_center;
+        
+            vec4 line1 = random_line(v_star + 2.137 * i);
+            vec4 line2 = normal_line(line1);
+            r = min(r, distance_to_line(line1, twirl_point));
+            r = min(r, distance_to_line(line2, twirl_point));
+        }
+        float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.5 + 0.5 * (1.0 - gl_FragCoord.z));
+        gl_FragColor = vec4(1, 1, 1, alpha * alpha);
+    } else {
+        gl_FragColor = vec4(0);
     }
-    float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.5 + 0.5 * (1.0 - gl_FragCoord.z));
-    gl_FragColor = vec4(1, 1, 1, alpha * alpha);
 }
