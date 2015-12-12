@@ -75,7 +75,7 @@ void main() {
     float fall_speed = FALL_SPEED - spin_radius;
     float fall_offset = fall_speed * u_time * 0.001;
     vec4 offset = vec4(
-        rand(a_star + 0.2, -1.0, 1.0),
+        rand(a_star + 0.2, -1.0 - (1.0 / u_ratio), 1.0 + (1.0 / u_ratio)),
         loop(rand(a_star + 0.3, -2.0, 2.0) - fall_offset, -2.0, 2.0),
         rand(a_star + 0.4, -0.8, 0.8),
         0);
