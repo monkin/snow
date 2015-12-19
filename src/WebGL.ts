@@ -7,7 +7,8 @@ module may.webgl {
     export var TEXTURES_COUNT = 16;
     
     export class GL {
-        public handle: WebGLRenderingContext
+        public handle: WebGLRenderingContext;
+        private settingsCache: Set<any> = {};
         public constructor(source: HTMLCanvasElement|WebGLRenderingContext, settings: any = {}) {
             if (source instanceof HTMLCanvasElement) {
                 this.handle = <WebGLRenderingContext>(source.getContext("webgl", settings) || source.getContext("experimental-webgl", settings));
@@ -358,20 +359,22 @@ module may.webgl {
             return this;
         }
         public use<T>(callback: { (): T }): T {
-            var gl, i, oldValues, result: T, v, _ref;
-            gl = this.gl.handle;
-            oldValues = {};
+            var gl = this.gl.handle, i: string,
+                oldValues: Set<any> = {}, result: T,
+                settingsCache = <Set<any>>((<any>this.gl).settingsCache);
             for (i in this.v) {
-                v = this.v[i];
-                oldValues[i] = Settings.fields[i].get(gl);
+                let v = this.v[i];
+                oldValues[i] = settingsCache.hasOwnProperty(i) ? settingsCache[i] : Settings.fields[i].get(gl);
+                settingsCache[i] = v;
                 Settings.fields[i].set(gl, v);
             }
             try {
                 result = callback();
             } finally {
                 for (i in oldValues) {
-                    v = oldValues[i];
+                    let v = oldValues[i];
                     Settings.fields[i].set(gl, v);
+                    settingsCache[i] = v;
                 }
             }
             return result;
@@ -875,6 +878,7 @@ module may.webgl {
     export class Uniforms {
         public gl: GL;
         private info: Set<WebGLActiveInfo> = {};
+        private locations: Set<WebGLUniformLocation> = {};
         public constructor(public program: Program) {
             this.gl = program.gl;
             var glh = this.gl.handle;
@@ -882,14 +886,15 @@ module may.webgl {
             for (let i = 0; i < uniformsCount; i++) {
                 let uniform = glh.getActiveUniform(program.handle, i);
                 this.info[uniform.name] = uniform;
+                this.locations[uniform.name] = this.gl.handle.getUniformLocation(this.program.handle, uniform.name);
             }
         }
         public append(name: string, value: any) {
             var gl = this.gl.handle,
-                location = gl.getUniformLocation(this.program.handle, name),
+                location = this.locations.hasOwnProperty(name) ? this.locations[name] : undefined,
                 info = this.info[name];
 
-            if (!info) {
+            if (!info || location == undefined) {
                 console.warn(`Uniform '${name}' not found`);
                 return this;
             }
