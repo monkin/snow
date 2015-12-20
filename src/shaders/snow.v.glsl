@@ -50,7 +50,10 @@ attribute float a_star;
 varying vec2 v_orientation;
 varying float v_star;
 varying vec3 v_normal;
+varying vec3 v_tangent;
+varying vec3 v_bitangent;
 varying vec3 v_position;
+varying vec2 v_bump;
 
 void main() {
     
@@ -71,7 +74,7 @@ void main() {
     float rotation_speed = rand(a_star, MIN_RPS, MAX_RPS);
     vec3 rotation_axis = rand_axis(a_star + 0.1);
     mat4 rotation_matrix = create_rotation_matrix(rotation_axis, rotation_speed * u_time * 0.001 + rand(a_star + 7.0));
-    vec4 rotated_point = vec4(a_point / 8.0, 0, 1) * rotation_matrix / vec4(u_ratio, 1, 1, 1);
+    vec4 rotated_point = vec4(a_point / 8.5, 0, 1) * rotation_matrix / vec4(u_ratio, 1, 1, 1);
     
     float spin_radius = rand(a_star + 0.5, MIN_SPIN_RADIUS, MAX_SPIN_RADIUS);
     float fall_speed = FALL_SPEED - spin_radius;
@@ -79,7 +82,7 @@ void main() {
     vec4 offset = vec4(
         rand(a_star + 0.2, -1.0 - (1.0 / u_ratio), 1.0 + (1.0 / u_ratio)),
         loop(rand(a_star + 0.3, -2.0, 2.0) - fall_offset, -2.0, 2.0),
-        rand(a_star + 0.4, -0.8, 0.8),
+        rand(a_star + 0.4, -0.8, 0.2),
         0);
     vec4 shifted_point = rotated_point + offset;
     
@@ -90,7 +93,11 @@ void main() {
     vec4 factor_point = spinned_point * vec4(factor, factor, 1, 1);
     
     v_normal = (vec4(0, 0, 1, 1) * rotation_matrix).xyz;
+    v_tangent = (vec4(0, 1, 0, 1) * rotation_matrix).xyz;
+    v_bitangent = (vec4(1, 0, 0, 1) * rotation_matrix).xyz;
     v_position = vec3(spinned_point.xy, 1.0 / spinned_point.z);
+    
+    v_bump = vec2(rand(a_star + a_orientation), rand(a_star + a_orientation + 18.0));
     
     gl_Position = vec4(factor_point.xy, clamp(factor_point.z, -1.0, 1.0), 1);
 }

@@ -12,10 +12,10 @@ varying vec2 v_point;
 varying float v_radius;
 
 void main() {
-    vec2 shift = u_mouse / (a_radius * 700.0);
+    vec2 shift = u_mouse / (a_radius * 400.0);
 	v_color = a_color;
-	v_radius = a_radius;
 	v_point = ((a_point + shift) + vec2(1, 1)) * 0.5 * u_viewport.zw;
-	gl_PointSize = a_radius * min(u_viewport.z, u_viewport.w);
+	gl_PointSize = min(a_radius * min(u_viewport.z, u_viewport.w), 255.0);
+    v_radius = gl_PointSize / min(u_viewport.z, u_viewport.w);
     gl_Position = vec4(a_point + shift, 0, 1);
 }

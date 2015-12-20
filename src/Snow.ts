@@ -11,7 +11,9 @@ namespace snow {
 	import Buffer = may.webgl.Buffer;
 	import BlendEquation = may.webgl.BlendEquation;
 	import BlendFunction = may.webgl.BlendFunction;
+    import Texture = may.webgl.Texture;
 	import Disposable = may.Disposable;
+    import using = may.using;
 	
 	export declare var Shaders: Set<string>;
     
@@ -91,8 +93,25 @@ namespace snow {
 		private uniforms: Uniforms;
 		private indexes: Buffer;
 		private triangles: number = 0;
+        private normals: Texture;
 		
 		public constructor(private gl: GL, private count: number) {
+            this.normals = gl.texture()
+                .width(64).height(64)
+                .formatRGB()
+                .filterLinear()
+                .wrapRepeat()
+                .typeByte()
+                .build();
+            
+            using(new Bump(gl, 400), gl.frame(), (bump, frame) => {
+                frame.setColorBuffer(this.normals).use(() => {
+                    gl.settings().viewport(0, 0, 64, 64).use(() => {
+                        bump.draw();
+                    });
+                });
+            });
+            
 			this.program = gl.program(Shaders["snow.v"], Shaders["snow.f"]);
 			var attributes = this.program.attributes(),
 				points: number[] = [], // vertexes
@@ -103,16 +122,19 @@ namespace snow {
 			
 			this.attributes = attributes;
 			this.uniforms = this.program.uniforms();
-			
+            
+            this.uniforms.append("u_normals", 0);
+            
 			for (let i = 0; i < count; i++) {
-				let rays = 10;
+				let rays = 10,
+                    starSeed = Math.random() * 1000;
 					
-				star.push(i);
+				star.push(starSeed);
 				points.push(0, 0);
 				orientation.push(0);
 				
 				for (let ray = 0; ray < rays; ray++) {
-					star.push(i);
+					star.push(starSeed);
 					points.push(Math.sin(2 * Math.PI * ray / rays), Math.cos(2 * Math.PI * ray / rays));
 					orientation.push((ray % 2) + 1);
 					indexes.push(offset, offset + ray + 1, offset + 1 + ((ray + 1) % rays));
@@ -156,6 +178,7 @@ namespace snow {
 					.blendEquation(BlendEquation.ADD)
 					.blendFunction(BlendFunction.SRC_ALPHA, BlendFunction.ONE_MINUS_SRC_ALPHA, BlendFunction.ONE, BlendFunction.ONE)
 					.elementArrayBuffer(this.indexes)
+                    .textures([this.normals])
 					.program(this.program)
 					.attributes(this.attributes).use(() => {
 				this.attributes.apply();
@@ -176,6 +199,10 @@ namespace snow {
 				this.indexes.dispose();
 				this.indexes = null;
 			}
+            if (this.normals) {
+                this.normals.dispose();
+                this.normals = null;
+            }
 		}
 	}
 	
@@ -249,6 +276,57 @@ namespace snow {
 			this.program.dispose();
 		}
 	}
+    
+    export class Bump implements Disposable {
+		
+		private program: Program;
+		private uniforms: Uniforms;
+		private attributes: Attributes;
+
+		public constructor(public gl: GL, public count: number) {
+			this.program = gl.program(Shaders["bump.v"], Shaders["bump.f"]);
+			this.attributes = this.program.attributes();
+			this.uniforms = this.program.uniforms();
+            
+            var points: number[] = [],
+                colors: number[] = [];
+            for (let i = 0; i < count; i++) {
+                let r =  50 / (i + 50),
+                    color = [Math.random(), Math.random(), 0.9],
+                    originX = Math.random() * 2 - 1,
+                    originY = Math.random() * 2 - 1;
+                for (let j = 0; j < 3; j++) {
+                    colors.push.apply(colors, color);
+                    points.push(originX + (Math.random() * 3 - 1.5) * r);
+                    points.push(originY + (Math.random() * 3 - 1.5) * r);
+                }
+            }
+			
+			this.attributes
+                .append("a_point", points)
+                .append("a_color", colors)
+                .build().apply();
+		}
+		
+		public draw() {
+			this.gl.settings()
+					.disableBlend()
+					.disableDepthTest()
+                    .clearColor([0, 0, 1, 1])
+					.program(this.program)
+					.attributes(this.attributes)
+					.use(() => {
+                this.gl.clearColorBuffer();
+				this.attributes.apply();
+				this.gl.drawTrianglesArrays(this.count * 3);
+			});
+		}
+		
+		public dispose() {
+			this.attributes.dispose();
+			this.program.dispose();
+		}
+	}
 	
 	export function start(canvas: HTMLCanvasElement) {
 		var gl = new GL(canvas),
@@ -283,7 +361,7 @@ namespace snow {
                 .setMousePosition(mousePosition)
 				.draw();
 			snow.setRatio(canvas.width / canvas.height)
-                .setMousePosition(mousePosition)
+                //.setMousePosition(mousePosition)
 				.setTime(new Date().getTime() - startTime.getTime())
 				.draw();
 			requestAnimationFrame(draw);
