@@ -9,6 +9,8 @@ uniform float u_time;
 
 varying vec2 v_orientation;
 varying float v_star;
+varying vec3 v_normal;
+varying vec3 v_position;
 
 float rand(float seed) {
     return fract(sin(seed) * 43758.5453123);
@@ -60,7 +62,9 @@ void main() {
             r = min(r, distance_to_line(line1, twirl_point));
             r = min(r, distance_to_line(line2, twirl_point));
         }
-        float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.5 + 0.5 * (1.0 - gl_FragCoord.z));
+        
+        float specular = abs(dot(v_normal, vec3(0, 0, 1))) * 0.3 + 0.7;
+        float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.5 + 0.5 * (1.0 - gl_FragCoord.z)) * specular;
         gl_FragColor = vec4(1, 1, 1, alpha * alpha);
     } else {
         gl_FragColor = vec4(0);

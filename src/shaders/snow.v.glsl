@@ -31,7 +31,7 @@ float rand(float seed, float v1, float v2) {
 
 vec3 rand_axis(float seed) {
     float phi = rand(seed, 0.0, 2.0 * M_PI);
-    float theta = rand(seed + 2.17, 0.0, 2.0 * M_PI);
+    float theta = rand(seed + 2.17, 0.2 * M_PI, 0.8 * M_PI);
     float sin_theta = sin(theta);
     return vec3(sin_theta * cos(phi), sin_theta * sin(phi), cos(theta));
 }
@@ -49,6 +49,8 @@ attribute float a_star;
 
 varying vec2 v_orientation;
 varying float v_star;
+varying vec3 v_normal;
+varying vec3 v_position;
 
 void main() {
     
@@ -68,8 +70,8 @@ void main() {
     // gl_Position
     float rotation_speed = rand(a_star, MIN_RPS, MAX_RPS);
     vec3 rotation_axis = rand_axis(a_star + 0.1);
-    mat4 rotation_matrix = create_rotation_matrix(rotation_axis, rotation_speed * u_time * 0.001);
-    vec4 rotated_point = vec4(a_point / 10.5, 0, 1) * rotation_matrix / vec4(u_ratio, 1, 1, 1);
+    mat4 rotation_matrix = create_rotation_matrix(rotation_axis, rotation_speed * u_time * 0.001 + rand(a_star + 7.0));
+    vec4 rotated_point = vec4(a_point / 8.0, 0, 1) * rotation_matrix / vec4(u_ratio, 1, 1, 1);
     
     float spin_radius = rand(a_star + 0.5, MIN_SPIN_RADIUS, MAX_SPIN_RADIUS);
     float fall_speed = FALL_SPEED - spin_radius;
@@ -87,5 +89,8 @@ void main() {
     float factor = 1.0 / (1.4 + spinned_point.z * 0.7);
     vec4 factor_point = spinned_point * vec4(factor, factor, 1, 1);
     
-    gl_Position = vec4(factor_point.x, factor_point.y, clamp(factor_point.z, -1.0, 1.0), 1);
+    v_normal = (vec4(0, 0, 1, 1) * rotation_matrix).xyz;
+    v_position = vec3(spinned_point.xy, 1.0 / spinned_point.z);
+    
+    gl_Position = vec4(factor_point.xy, clamp(factor_point.z, -1.0, 1.0), 1);
 }
