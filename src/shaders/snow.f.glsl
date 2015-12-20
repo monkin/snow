@@ -6,6 +6,7 @@ precision highp float;
 
 uniform float u_ratio;
 uniform float u_time;
+uniform vec2 u_mouse;
 
 varying vec2 v_orientation;
 varying float v_star;
@@ -37,14 +38,22 @@ float distance_to_line(vec4 line, vec2 testPt) {
 
 vec4 random_line(float seed) {
     float angle = M_PI * rand(seed);
-    float x1 = rand(seed + 1.05);
-    float y1 = rand(seed + 1.1);
+    float x1 = rand(seed + 1.053);
+    float y1 = rand(seed + 1.153);
     return vec4(x1, y1, x1 + cos(angle), y1 + sin(angle));
 }
 
 
 vec4 normal_line(vec4 line) {
     return vec4(line.x, line.y, line.x + (line.w - line.y), line.y - (line.z - line.x));
+}
+
+float light(vec3 point, vec3 normal, vec3 source, vec3 eye) {
+    vec3 lightDirection = normalize(source - point);
+    vec3 eyeDirection = normalize(eye - point);
+    return 0.3 + 
+        abs(dot(normal, lightDirection)) * 0.5 +
+        exp(max(dot(normalize(reflect(-lightDirection, normal)), eyeDirection), 0.0)) * 0.3;
 }
 
 void main() {
@@ -63,9 +72,9 @@ void main() {
             r = min(r, distance_to_line(line2, twirl_point));
         }
         
-        float specular = abs(dot(v_normal, vec3(0, 0, 1))) * 0.3 + 0.7;
-        float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.5 + 0.5 * (1.0 - gl_FragCoord.z)) * specular;
-        gl_FragColor = vec4(1, 1, 1, alpha * alpha);
+        float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.55 + 0.45 * (1.0 - gl_FragCoord.z));
+        gl_FragColor = vec4(1, 1, 1, alpha * alpha
+            * light(vec3(v_position.xy, 1.0 / v_position.z), v_normal, vec3(u_mouse, -2), vec3(0, 0, -4)));
     } else {
         gl_FragColor = vec4(0);
     }

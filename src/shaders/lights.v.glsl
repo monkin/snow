@@ -12,7 +12,7 @@ varying vec2 v_point;
 varying float v_radius;
 
 void main() {
-    vec2 shift = u_mouse / (a_radius * 800.0);
+    vec2 shift = u_mouse / (a_radius * 700.0);
 	v_color = a_color;
 	v_radius = a_radius;
 	v_point = ((a_point + shift) + vec2(1, 1)) * 0.5 * u_viewport.zw;

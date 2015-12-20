@@ -26,7 +26,6 @@ namespace snow {
                     e.pageX / window.innerWidth * 2 - 1,
                     - e.pageY / window.innerHeight * 2 + 1
                 ];
-                console.log(JSON.stringify(this.position) + " => " + JSON.stringify(this.destination));
             });
         }
         public getPosition(): number[] {
@@ -144,6 +143,11 @@ namespace snow {
 			this.uniforms.append("u_ratio", ratio);
 			return this;
 		}
+        
+        public setMousePosition(v: number[]) {
+            this.uniforms.append("u_mouse", v);
+            return this;
+        }
 		
 		public draw() {
 			this.gl.settings()
@@ -273,11 +277,13 @@ namespace snow {
 		resize();
 		
 		function draw() {
+            var mousePosition = mouse.getPosition();
 			background.draw();
 			lights.setViewport(0, 0, canvas.width, canvas.height)
-                .setMousePosition(mouse.getPosition())
+                .setMousePosition(mousePosition)
 				.draw();
 			snow.setRatio(canvas.width / canvas.height)
+                .setMousePosition(mousePosition)
 				.setTime(new Date().getTime() - startTime.getTime())
 				.draw();
 			requestAnimationFrame(draw);
