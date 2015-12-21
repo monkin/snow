@@ -8,7 +8,7 @@ var gulp = require("gulp"),
     header = require("gulp-header");
 
 gulp.task("default", ["build", "release", "watch", "server"]);
-gulp.task("build", ["build-js", "build-html", "build-glsl", "build-img", "build-audio"]);
+gulp.task("build", ["build-js", "build-html", "build-glsl", "build-img", "build-audio", "build-icon"]);
 
 gulp.task("build-js", function() {
     gulp.src(["src/**/*.ts"])
@@ -25,6 +25,10 @@ gulp.task("build-glsl", function() {
 
 gulp.task("build-html", function() {
     gulp.src("src/index.html").pipe(gulp.dest("build"));
+});
+
+gulp.task("build-icon", function() {
+    gulp.src("favicon.ico").pipe(gulp.dest("build"));
 });
 
 gulp.task("build-img", function() {
