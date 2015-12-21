@@ -16,39 +16,6 @@ namespace snow {
     import using = may.using;
 	
 	export declare var Shaders: Set<string>;
-    
-    export class Mouse {
-        private destination = [0, 0];
-        private speed = 10.0;
-        private position = [0, 0];
-        private time = new Date().getTime() / 1000;
-        public constructor() {
-            window.addEventListener("mousemove", (e: MouseEvent) => {
-                this.destination = [
-                    e.pageX / window.innerWidth * 2 - 1,
-                    - e.pageY / window.innerHeight * 2 + 1
-                ];
-            });
-        }
-        public getPosition(): number[] {
-            var now = new Date().getTime() / 1000,
-                destination = this.destination,
-                lastTime = this.time,
-                position = this.position,
-                v = [destination[0] - position[0], destination[1] - position[1]],
-                l = Math.sqrt(v[0] * v[0] + v[1] * v[1]),
-                d = this.speed * (now - lastTime);
-            if (d > l) {
-                this.position = this.destination;
-            } else {
-                var c = d / l,
-                    shift = [v[0] * c, v[1] * c];
-                this.position = [position[0] + shift[0], position[1] + shift[1]];
-            }
-            this.time = now;
-            return this.position;
-        }
-    }
 	
 	export class Background implements Disposable {
 		
@@ -249,8 +216,8 @@ namespace snow {
 			return this;
 		}
         
-        public setMousePosition(v: number[]) {
-            this.uniforms.append("u_mouse", v);
+        public setTime(v: number) {
+            this.uniforms.append("u_time", v);
             return this;
         }
 		
@@ -327,7 +294,6 @@ namespace snow {
 	
 	export function start(canvas: HTMLCanvasElement) {
 		var gl = new GL(canvas, { antialias: false }),
-            mouse = new Mouse(),
 			background = new Background(gl),
 			snow = new Snow(gl, 600),
 			lights = new Lights(gl, 100),
@@ -352,10 +318,9 @@ namespace snow {
 		resize();
 		
 		function draw() {
-            var mousePosition = mouse.getPosition();
 			background.draw();
 			lights.setViewport(0, 0, canvas.width, canvas.height)
-                .setMousePosition(mousePosition)
+                .setTime(new Date().getTime() - startTime.getTime())
 				.draw();
 			snow.setRatio(canvas.width / canvas.height)
 				.setTime(new Date().getTime() - startTime.getTime())
