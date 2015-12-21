@@ -401,12 +401,14 @@ namespace snow {
             setAudioState(true);
         });
         
-        audioButton.addEventListener("click", function() {
+        audioButton.addEventListener("click", function(e: MouseEvent) {
             if (isPlayed) {
                 audio.pause();
             } else {
                 audio.play();
             }
+            e.preventDefault && e.preventDefault();
+            e.defaultPrevented = true;
         });
         
         audio.load();
