@@ -78,9 +78,13 @@
             .audio-icon-on, .audio-icon-off {
                 border: none;
                 display: block;
+                opacity: 0.5;
+                width: 48px;
+                height: 48px;
             }
             .audio-off .audio-icon-on {
                 display: none;
+                opacity: 1;
             }
             .audio-on .audio-icon-off {
                 display: none;
@@ -108,8 +112,8 @@
         </audio>
         
         <a id="audio_button" class="audio-button audio-off" href="#">
-            <img class="audio-icon-on" src="img/sound_64.png" srcset="img/sound_128.png 2x"/>
-            <img class="audio-icon-off" src="img/sound_off_64.png" srcset="img/sound_off_128.png 2x"/>
+            <img class="audio-icon-on" src="img/sound_48.png" srcset="img/sound_96.png 2x"/>
+            <img class="audio-icon-off" src="img/sound_off_48.png" srcset="img/sound_off_96.png 2x"/>
         </a>
         
 		<a class="to-source" href="https://github.com/monkin/snow" target="_blank">View Source</a>
