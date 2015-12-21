@@ -165,11 +165,6 @@ namespace snow {
 			this.uniforms.append("u_ratio", ratio);
 			return this;
 		}
-        
-        public setMousePosition(v: number[]) {
-            this.uniforms.append("u_mouse", v);
-            return this;
-        }
 		
 		public draw() {
 			this.gl.settings()
@@ -363,12 +358,61 @@ namespace snow {
                 .setMousePosition(mousePosition)
 				.draw();
 			snow.setRatio(canvas.width / canvas.height)
-                //.setMousePosition(mousePosition)
 				.setTime(new Date().getTime() - startTime.getTime())
 				.draw();
 			requestAnimationFrame(draw);
 		}
 		requestAnimationFrame(draw);
+        
+        
+        // Audio
+        var audio = <HTMLAudioElement>document.getElementById("audio"),
+            audioButton = <HTMLDivElement>document.getElementById("audio_button"),
+            autoStart = localStorage.getItem("play") !== "false",
+            isPlayed = false;
+        
+        function setAudioState(state: boolean) {
+            if (isPlayed !== state) {
+                isPlayed = state;
+                localStorage.setItem("play", state ? "true" : "false");
+                if (state) {
+                    audioButton.classList.remove("audio-off");
+                    audioButton.classList.add("audio-on");
+                } else {
+                    audioButton.classList.remove("audio-on");
+                    audioButton.classList.add("audio-off");
+                }
+            }
+        }
+        
+        audio.addEventListener("canplay", function() {
+            if (autoStart) {
+                audio.play();
+            }
+        });
+        
+        audio.addEventListener("pause", function() {
+            setAudioState(false);
+        });
+        audio.addEventListener("play", function() {
+            setAudioState(true);
+        });
+        audio.addEventListener("playing", function() {
+            setAudioState(true);
+        });
+        
+        audioButton.addEventListener("click", function() {
+            if (isPlayed) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+        });
+        
+        audio.load();
+        if (autoStart) {
+            audio.play();
+        }
 	}
 	
 }

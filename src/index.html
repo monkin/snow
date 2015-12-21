@@ -40,7 +40,7 @@
 				right: 12px;
 				bottom: 12px;
 				background: rgba(50, 50, 100, 0.7);
-				border-radius: 3px;
+				border-radius: 6px;
 				text-decoration: none;
                 z-index: 1;
 			}
@@ -57,6 +57,28 @@
             #fb_like, #vk_like {
                 display: inline-block;
                 vertical-align: middle;
+            }
+            .audio-button {
+                padding: 8px;
+				position: absolute;
+				right: 12px;
+				top: 12px;
+				background: rgba(50, 50, 100, 0.7);
+				border-radius: 6px;
+                z-index: 1;
+            }
+            .audio-button:hover {
+                background: rgba(50, 50, 100, 0.9);
+            }
+            .audio-icon-on, .audio-icon-off {
+                border: none;
+                display: block;
+            }
+            .audio-off .audio-icon-on {
+                display: none;
+            }
+            .audio-on .audio-icon-off {
+                display: none;
             }
 		</style>
 	</head>
@@ -78,16 +100,11 @@
             <source src="audio/Maya_Filipi-Silent_Night.mp3" type="audio/mpeg"/>
             <source src="audio/Maya_Filipi-Silent_Night.aac" type="audio/aac"/>
         </audio>
-        <script type="text/javascript">
-            (function() {
-                var audio = document.getElementById("audio");
-                audio.addEventListener('canplay', function() {
-                    audio.play();
-                });
-                audio.load();
-                audio.play();
-            })();
-        </script>
+        
+        <a id="audio_button" class="audio-button audio-off" href="#">
+            <img class="audio-icon-on" src="img/sound_64.png" srcset="img/sound_128.png 2x"/>
+            <img class="audio-icon-off" src="img/sound_off_64.png" srcset="img/sound_off_128.png 2x"/>
+        </a>
         
 		<a class="to-source" href="https://github.com/monkin/snow" target="_blank">View Source</a>
         <div class="social">
