@@ -26,6 +26,9 @@ module may.webgl {
             this.handle.getExtension("WEBGL_color_buffer_float");
             return this;
         }
+        public getPointSizeRange(): number[] {
+            return this.handle.getParameter(this.handle.ALIASED_POINT_SIZE_RANGE);
+        }
         public program(vertex: string, fragment: string) {
             return new Program(this, vertex, fragment);
         }

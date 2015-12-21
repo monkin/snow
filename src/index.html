@@ -3,9 +3,21 @@
 	<head>
 		<title>Snowflakes</title>
 		<meta name="description" content="Snowflakes made with WebGL"/>
-		<meta name="keywords" content="Snowflake, Snow, WebGL"/>
+		<meta name="keywords" content="Snowflake, Snow, WebGL, GLSL"/>
 		<meta name="author" content="Andrey Monkin"/>
 		<meta name="contact" content="monkin.andrey@gmail.com"/> 
+        
+        <meta property="og:url" content="http://monkin.github.io/snow-release/"/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="Snowflakes"/>
+        <meta property="og:description" content="Snowflakes made with WebGL"/>
+        <meta property="og:image" content="http://monkin.github.io/snow-release/img/image.png"/>
+        
+        <!-- Vk -->
+        <script type="text/javascript" src="//vk.com/js/api/openapi.js?121"></script>
+        <script type="text/javascript">VK.init({apiId: 5196027, onlyWidgets: true});</script>
+        <!-- /Vk -->
+        
 		<script type="text/javascript" src="script.js"></script>
 		<script type="text/javascript" src="glsl.js"></script>
 		<style type="text/css">
@@ -20,25 +32,70 @@
 				display: block;
 			}
 			.to-source {
-				padding: 12px 18px;
-				font-family: Consolas, monaco, monospace;
+				padding: 4px 8px;
+				font-family: Calibri, Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif;
 				font-size: 18px;
 				color: rgba(255, 255, 255, 0.8);
 				position: absolute;
 				right: 12px;
 				bottom: 12px;
 				background: rgba(50, 50, 100, 0.7);
-				border-radius: 6px;
+				border-radius: 3px;
 				text-decoration: none;
+                z-index: 1;
 			}
 			.to-source:hover {
 				background: rgba(50, 50, 100, 0.9);
 			}
+            .social {
+                position: absolute;
+				left: 12px;
+				bottom: 12px;
+                z-index: 1;
+                padding: 4px 8px;
+            }
+            #fb_like, #vk_like {
+                display: inline-block;
+                vertical-align: middle;
+            }
 		</style>
 	</head>
 	<body onload="snow.start(document.getElementById('canvas'))">
+        <!-- Fb -->
+        <div id="fb-root"></div>
+        <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.5";
+        fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));</script>
+        <!-- /Fb -->
+        
 		<canvas id="canvas"></canvas>
+        <audio id="audio" loop preload>
+            <source src="audio/Maya_Filipi-Silent_Night.ogg" type="audio/ogg"/>
+            <source src="audio/Maya_Filipi-Silent_Night.mp3" type="audio/mpeg"/>
+            <source src="audio/Maya_Filipi-Silent_Night.aac" type="audio/aac"/>
+        </audio>
+        <script type="text/javascript">
+            (function() {
+                var audio = document.getElementById("audio");
+                audio.addEventListener('canplay', function() {
+                    audio.play();
+                });
+                audio.load();
+                audio.play();
+            })();
+        </script>
+        
 		<a class="to-source" href="https://github.com/monkin/snow" target="_blank">View Source</a>
+        <div class="social">
+            <div id="fb_like" class="fb-like" data-href="http://monkin.github.io/snow-release/" data-layout="button_count" data-action="like" data-show-faces="true" data-share="false"></div>
+            
+            <div id="vk_like"></div>
+            <script type="text/javascript">VK.Widgets.Like("vk_like", {type: "mini", height: 20});</script>
+        </div>
 		<!-- Yandex.Metrika counter -->
 		<script type="text/javascript">
 			(function (d, w, c) {

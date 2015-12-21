@@ -80,7 +80,7 @@ void main() {
         
         float alpha = max(1.0 - r * r * r * 500.0, 0.0) * (0.3 + 0.7 * max(1.0 - gl_FragCoord.z, 0.0));
         gl_FragColor = vec4(1, 1, 1, alpha * alpha
-            * light(vec3(v_position.xy, 1.0 / v_position.z), compute_normal(), vec3(0, -1, -2), vec3(0, 0, -4)));
+            * light(vec3(v_position.xy, 1.0 / v_position.z), compute_normal(), vec3(0, 0, -2), vec3(0, 0, -4)));
     } else {
         gl_FragColor = vec4(0);
     }

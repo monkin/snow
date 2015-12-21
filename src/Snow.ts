@@ -245,6 +245,8 @@ namespace snow {
 				.append("a_radius", radius)
 				.append("a_color", colors)
 				.build().apply();
+                
+            this.uniforms.append("u_max_radius", gl.getPointSizeRange()[1]);
 		}
 		
 		public setViewport(...v: number[]) {
@@ -329,7 +331,7 @@ namespace snow {
 	}
 	
 	export function start(canvas: HTMLCanvasElement) {
-		var gl = new GL(canvas),
+		var gl = new GL(canvas, { antialias: false }),
             mouse = new Mouse(),
 			background = new Background(gl),
 			snow = new Snow(gl, 600),

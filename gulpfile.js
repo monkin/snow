@@ -8,7 +8,7 @@ var gulp = require("gulp"),
     header = require("gulp-header");
 
 gulp.task("default", ["build", "release", "watch", "server"]);
-gulp.task("build", ["build-js", "build-html", "build-glsl"]);
+gulp.task("build", ["build-js", "build-html", "build-glsl", "build-img", "build-audio"]);
 
 gulp.task("build-js", function() {
     gulp.src(["src/**/*.ts"])
@@ -27,8 +27,16 @@ gulp.task("build-html", function() {
     gulp.src("src/index.html").pipe(gulp.dest("build"));
 });
 
+gulp.task("build-img", function() {
+    gulp.src("img/*").pipe(gulp.dest("build/img"));
+});
+
+gulp.task("build-audio", function() {
+    gulp.src("audio/*").pipe(gulp.dest("build/audio"));
+});
+
 gulp.task("release", function() {
-    gulp.src("build/*").pipe(gulp.dest("../snow-release"));
+    gulp.src("build/**/*").pipe(gulp.dest("../snow-release"));
 });
 
 gulp.task("watch", function() {
